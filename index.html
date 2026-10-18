@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Red Planet Rebuild</title>
+<meta name="theme-color" content="#16323b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rebuild">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Luckiest+Guy&display=swap" rel="stylesheet">
+<style>
+:root{--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);--teal:#1fb3a6;--tealD:#0f6f69;--rust:#c4532a;--ink:#3b1a10;--cream:#fff6e8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#16323b;font-family:Fredoka,system-ui,sans-serif;color:var(--ink);overscroll-behavior:none;position:fixed;inset:0}
+#cv{position:fixed;inset:0;touch-action:none;display:block}
+button{font-family:inherit;cursor:pointer;border:0}
+.hide{display:none!important}
+.cartoon{font-family:'Luckiest Guy',Fredoka,sans-serif;letter-spacing:.5px}
+/* HUD */
+#hud{position:fixed;top:calc(var(--st) + 8px);left:calc(var(--sl) + 8px);right:calc(var(--sr) + 8px);display:flex;gap:6px;align-items:center;pointer-events:none;z-index:5}
+#hud>*{pointer-events:auto}
+.pill{background:linear-gradient(#fffaf0,#f3e3c8);border:3px solid var(--ink);border-radius:20px;height:36px;display:flex;align-items:center;padding:0 10px 0 4px;font-weight:700;font-size:16px;box-shadow:0 3px 0 rgba(59,26,16,.45);white-space:nowrap}
+#lvl{flex:1 1 auto;min-width:0;position:relative;padding-left:40px}
+#lvlstar{position:absolute;left:-6px;top:-8px;width:46px;height:46px;display:grid;place-items:center;font-family:'Luckiest Guy';font-size:19px;color:#fff;-webkit-text-stroke:1.5px var(--ink);background:radial-gradient(circle at 40% 35%,#ffe27a,#f29a1d);clip-path:polygon(50% 0,61% 34%,98% 35%,68% 57%,79% 92%,50% 71%,21% 92%,32% 57%,2% 35%,39% 34%)}
+#xpbar{flex:1;height:14px;border:2px solid var(--ink);border-radius:8px;background:#5b2a18;overflow:hidden;position:relative;min-width:30px}
+#xpfill{position:absolute;inset:0;width:0;background:linear-gradient(#7ef0e4,#1fb3a6);transition:width .4s}
+#xptxt{position:absolute;inset:0;font-size:10px;line-height:10px;color:#fff;text-align:center;text-shadow:0 1px 0 #000}
+.coin{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3a8,#f5b321 55%,#c27a0c);border:2px solid var(--ink);margin-right:5px;display:grid;place-items:center;font-size:12px;color:var(--ink);font-weight:700;flex:none}
+.coin:after{content:'¢'}
+.he3{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d9fffb,#3fd3c4 55%,#0f7f76);border:2px solid var(--ink);margin-right:5px;display:grid;place-items:center;font-size:13px;color:#063b37;font-weight:700;flex:none}
+.he3:after{content:'⚛'}
+.bump{animation:bump .25s}
+@keyframes bump{50%{transform:scale(1.18)}}
+#menuBtn{width:38px;height:38px;border-radius:12px;background:linear-gradient(#3fd3c4,#13867d);border:3px solid var(--ink);color:#fff;font-size:20px;box-shadow:0 3px 0 rgba(59,26,16,.45);flex:none}
+#bonus{position:fixed;top:calc(var(--st) + 52px);right:calc(var(--sr) + 10px);font-size:12px;font-weight:700;color:#fff;background:rgba(15,111,105,.85);border:2px solid var(--ink);border-radius:10px;padding:2px 8px;z-index:5}
+/* quests */
+#quests{position:fixed;left:calc(var(--sl) + 8px);top:calc(var(--st) + 62px);display:flex;flex-direction:column;gap:8px;z-index:5}
+.qbtn{width:54px;height:54px;border-radius:50%;border:3px solid var(--ink);background:radial-gradient(circle at 50% 30%,#fff,#ffd9a8);position:relative;box-shadow:0 3px 0 rgba(59,26,16,.45);padding:0;overflow:visible}
+.qbtn canvas{width:48px;height:48px;border-radius:50%}
+.qbtn .bang{position:absolute;right:-4px;top:-4px;width:20px;height:20px;border-radius:50%;background:#f2c218;border:2px solid var(--ink);font-weight:700;font-size:13px;line-height:16px;color:var(--ink)}
+.qbtn.done .bang{background:#3fd36a}
+/* bottom buttons */
+#bbar{position:fixed;right:calc(var(--sr) + 10px);bottom:calc(var(--sb) + 12px);display:flex;gap:10px;align-items:flex-end;z-index:5}
+.rbtn{width:58px;height:58px;border-radius:50%;border:3px solid var(--ink);background:radial-gradient(circle at 40% 30%,#ffd6a1,#f0812f);font-size:26px;box-shadow:0 4px 0 rgba(59,26,16,.5);position:relative}
+.rbtn small{position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000;white-space:nowrap}
+#storeBtn{width:72px;height:72px;font-size:34px;background:radial-gradient(circle at 40% 30%,#9ff5ec,#18a79b)}
+.pulse{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,236,120,.95),0 4px 0 rgba(59,26,16,.5)}50%{box-shadow:0 0 0 12px rgba(255,236,120,0),0 4px 0 rgba(59,26,16,.5);transform:scale(1.07)}}
+/* mode bar */
+#modebar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 14px);display:flex;gap:10px;z-index:7;align-items:center}
+.mb{height:52px;min-width:52px;border-radius:26px;border:3px solid var(--ink);font-size:20px;font-weight:700;padding:0 14px;box-shadow:0 4px 0 rgba(59,26,16,.5);background:#fff6e8;color:var(--ink)}
+.mb.ok{background:linear-gradient(#7ef08f,#28a345);color:#fff;text-shadow:0 1px 0 #000}
+.mb.no{background:linear-gradient(#ff9a7a,#d23c1c);color:#fff;text-shadow:0 1px 0 #000}
+.mb.on{background:linear-gradient(#9ff5ec,#18a79b);color:#fff}
+#modelabel{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 76px);background:rgba(59,26,16,.85);color:#fff;font-weight:700;font-size:14px;padding:6px 12px;border-radius:14px;z-index:7;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+/* tip */
+#tip{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--st) + 56px);max-width:min(78vw,420px);background:#fffbe0;border:3px solid var(--ink);border-radius:14px;padding:6px 12px;font-weight:700;font-size:14px;z-index:6;text-align:center;box-shadow:0 3px 0 rgba(59,26,16,.4);pointer-events:none}
+/* sheet */
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:62vh;overflow:auto;background:var(--cream);border-top:4px solid var(--ink);border-radius:22px 22px 0 0;padding:14px calc(var(--sr) + 14px) calc(var(--sb) + 14px) calc(var(--sl) + 14px);z-index:8;box-shadow:0 -6px 20px rgba(0,0,0,.35);animation:up .2s}
+@keyframes up{from{transform:translateY(40px);opacity:.3}}
+.sh-h{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.sh-h h2{margin:0;font-family:'Luckiest Guy';font-weight:400;font-size:22px;flex:1;line-height:1.1}
+.sh-h canvas{width:56px;height:56px;border-radius:50%;border:3px solid var(--ink);background:#ffe6c4;flex:none}
+.x{width:36px;height:36px;border-radius:50%;background:#d23c1c;color:#fff;font-size:18px;font-weight:700;border:3px solid var(--ink);flex:none}
+.sub{font-size:13px;opacity:.75;margin:-4px 0 8px}
+.job{display:flex;align-items:center;gap:10px;background:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px 10px;margin-bottom:8px}
+.job .ic{font-size:26px;width:36px;text-align:center;flex:none}
+.job .info{flex:1;min-width:0}
+.job .nm{font-weight:700;font-size:15px}
+.job .rw{font-size:12px;opacity:.8}
+.job button{height:40px;border-radius:20px;border:3px solid var(--ink);background:linear-gradient(#7ef08f,#28a345);color:#fff;font-weight:700;font-size:14px;padding:0 14px;text-shadow:0 1px 0 #000;flex:none}
+.job.lock{opacity:.5}
+.job.lock button{background:#bbb}
+.tag{display:inline-block;background:#f2c218;border:2px solid var(--ink);border-radius:8px;font-size:10px;padding:0 5px;margin-left:4px;vertical-align:middle}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.btn{flex:1 1 auto;min-width:80px;height:44px;border-radius:22px;border:3px solid var(--ink);background:#fff;font-weight:700;font-size:15px;box-shadow:0 3px 0 rgba(59,26,16,.4);color:var(--ink)}
+.btn.g{background:linear-gradient(#7ef08f,#28a345);color:#fff;text-shadow:0 1px 0 #000}
+.btn.t{background:linear-gradient(#9ff5ec,#18a79b);color:#fff;text-shadow:0 1px 0 #000}
+.btn.r{background:linear-gradient(#ff9a7a,#d23c1c);color:#fff;text-shadow:0 1px 0 #000}
+.btn:disabled{opacity:.45}
+.prog{height:16px;border:3px solid var(--ink);border-radius:10px;background:#5b2a18;overflow:hidden;margin:6px 0}
+.prog i{display:block;height:100%;background:linear-gradient(#ffe27a,#f29a1d)}
+/* store */
+#store{position:fixed;inset:0;z-index:9;background:rgba(22,50,59,.55);display:flex;flex-direction:column;justify-content:flex-end}
+#storeIn{background:var(--cream);border-top:4px solid var(--ink);border-radius:22px 22px 0 0;height:min(78vh,640px);display:flex;flex-direction:column;padding-bottom:var(--sb);animation:up .2s}
+#storeTop{display:flex;align-items:center;gap:8px;padding:12px calc(var(--sr) + 12px) 6px calc(var(--sl) + 14px)}
+#storeTop h2{margin:0;flex:1;font-family:'Luckiest Guy';font-weight:400;font-size:26px;color:var(--rust);-webkit-text-stroke:1px var(--ink)}
+#tabs{display:flex;gap:6px;overflow-x:auto;padding:4px calc(var(--sr) + 12px) 8px calc(var(--sl) + 12px);scrollbar-width:none;flex:none}
+#tabs::-webkit-scrollbar{display:none}
+.tab{flex:none;height:36px;border-radius:18px;border:3px solid var(--ink);background:#fff;font-weight:700;font-size:13px;padding:0 12px;color:var(--ink)}
+.tab.on{background:linear-gradient(#ffd6a1,#f0812f);color:#fff;text-shadow:0 1px 0 #000}
+#grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:10px;padding:4px calc(var(--sr) + 12px) 16px calc(var(--sl) + 12px);align-content:start;-webkit-overflow-scrolling:touch}
+.card{background:#fff;border:3px solid var(--ink);border-radius:14px;padding:6px 6px 8px;text-align:center;position:relative;box-shadow:0 3px 0 rgba(59,26,16,.35)}
+.card canvas{width:100%;height:78px;display:block}
+.card .nm{font-weight:700;font-size:13px;line-height:1.1;min-height:29px;display:flex;align-items:center;justify-content:center}
+.card .pr{font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;gap:2px;margin-top:3px}
+.card .pr .coin,.card .pr .he3{width:18px;height:18px;font-size:9px;margin-right:2px;border-width:1.5px}
+.card .meta{font-size:10.5px;opacity:.75}
+.card.lock{filter:grayscale(.85);opacity:.6}
+.card .lk{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;text-shadow:0 1px 2px #000,0 0 4px #000;background:rgba(59,26,16,.25);border-radius:11px}
+.card.owned{opacity:.6}
+/* dialog */
+#dlg{position:fixed;left:calc(var(--sl) + 8px);right:calc(var(--sr) + 8px);bottom:calc(var(--sb) + 10px);z-index:12;display:flex;align-items:flex-end;gap:0;animation:up .2s}
+#dlgP{width:96px;height:96px;flex:none;position:relative;z-index:2;margin-right:-14px;filter:drop-shadow(0 3px 0 rgba(59,26,16,.4))}
+#dlgBox{flex:1;background:#fff;border:4px solid var(--ink);border-radius:18px;padding:10px 14px 22px 22px;min-height:96px;position:relative;box-shadow:0 4px 0 rgba(59,26,16,.4)}
+#dlgN{font-family:'Luckiest Guy';font-size:17px;color:var(--rust);margin-bottom:2px}
+#dlgT{font-size:16px;font-weight:500;line-height:1.3}
+#dlgNext{position:absolute;right:12px;bottom:4px;font-size:13px;font-weight:700;opacity:.6;animation:bob 1s infinite}
+@keyframes bob{50%{transform:translateY(3px)}}
+#dlgCover{position:fixed;inset:0;z-index:11}
+/* modal */
+#modal{position:fixed;inset:0;z-index:20;background:rgba(10,25,30,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+#modalIn{background:var(--cream);border:4px solid var(--ink);border-radius:22px;padding:18px;max-width:420px;width:100%;max-height:86vh;overflow:auto;box-shadow:0 6px 0 rgba(59,26,16,.5);animation:pop .25s}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+#modalIn h2{margin:0 0 8px;font-family:'Luckiest Guy';font-weight:400;font-size:26px;color:var(--rust);text-align:center;-webkit-text-stroke:1px var(--ink)}
+#modalIn p{margin:6px 0;font-size:15px}
+#modalIn textarea{width:100%;height:110px;border:3px solid var(--ink);border-radius:12px;font-size:11px;padding:8px;user-select:text;-webkit-user-select:text}
+.obj{display:flex;gap:8px;align-items:center;background:#fff;border:3px solid var(--ink);border-radius:12px;padding:8px 10px;margin:6px 0;font-weight:700;font-size:14px}
+.obj .ck{width:24px;height:24px;border-radius:50%;border:2px solid var(--ink);display:grid;place-items:center;flex:none;font-size:14px}
+.obj.ok .ck{background:#3fd36a;color:#fff}
+.obj .cnt{margin-left:auto;font-size:13px;opacity:.7}
+.rew{display:flex;gap:12px;justify-content:center;align-items:center;font-weight:700;margin:10px 0 4px}
+.rew span{display:flex;align-items:center}
+/* toast */
+#toast{position:fixed;left:50%;top:calc(var(--st) + 100px);transform:translateX(-50%);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.tst{background:rgba(59,26,16,.92);color:#fff;font-weight:700;padding:8px 14px;border-radius:14px;font-size:14px;animation:pop .2s;text-align:center;max-width:86vw}
+.tst.click{pointer-events:auto;background:#0f6f69;border:2px solid #fff}
+/* title */
+#title{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(#0f2a33 0%,#1d4e57 45%,#d9824b 78%,#b5502a 100%);text-align:center;padding:20px}
+#title canvas{width:min(70vw,300px);height:min(70vw,300px)}
+#logo{font-family:'Luckiest Guy';font-size:min(13vw,64px);line-height:.95;color:#ffb35c;-webkit-text-stroke:2.5px var(--ink);text-shadow:0 5px 0 var(--ink),0 8px 14px rgba(0,0,0,.4);transform:rotate(-3deg)}
+#logo span{color:#5ff0e0;display:block;font-size:.8em}
+#tapgo{margin-top:22px;font-family:'Luckiest Guy';font-size:24px;color:#fff;-webkit-text-stroke:1px var(--ink);animation:bob 1s infinite}
+#ver{position:absolute;bottom:calc(var(--sb) + 8px);font-size:11px;color:rgba(255,255,255,.6)}
+/* cinematic */
+body.cine #hud,body.cine #quests,body.cine #bbar,body.cine #bonus,body.cine #tip{display:none!important}
+#cap{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--sb) + 40px);z-index:15;background:rgba(0,0,0,.65);color:#fff;font-weight:700;font-size:17px;padding:8px 16px;border-radius:12px;text-align:center;max-width:90vw}
+#skipIntro{position:fixed;top:calc(var(--st) + 10px);right:calc(var(--sr) + 10px);z-index:16;background:rgba(0,0,0,.5);color:#fff;border:2px solid #fff;border-radius:16px;padding:6px 12px;font-weight:700;font-size:14px}
+body.talk #bbar,body.talk #tip{display:none!important}
+#flash{position:fixed;inset:0;background:#fff3c8;z-index:14;pointer-events:none;opacity:0}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud" class="hide">
+  <div class="pill" id="lvl"><div id="lvlstar">1</div><div id="xpbar"><i id="xpfill"></i><span id="xptxt"></span></div></div>
+  <div class="pill" id="cc"><b class="coin"></b><span id="credits">0</span></div>
+  <div class="pill" id="hh"><b class="he3"></b><span id="he3">0</span></div>
+  <button id="menuBtn" aria-label="Menu">☰</button>
+</div>
+<div id="bonus" class="hide"></div>
+<div id="quests" class="hide"></div>
+<div id="tip" class="hide"></div>
+<div id="bbar" class="hide">
+  <button class="rbtn" id="charBtn">👥<small>Crew</small></button>
+  <button class="rbtn" id="landBtn">🚩<small>Land</small></button>
+  <button class="rbtn" id="storeBtn">🛒<small>Build</small></button>
+</div>
+<div id="modelabel" class="hide"></div>
+<div id="modebar" class="hide"></div>
+<div id="sheet" class="hide"></div>
+<div id="store" class="hide"><div id="storeIn"><div id="storeTop"><h2>Build Store</h2><button class="x" id="storeX">✕</button></div><div id="tabs"></div><div id="grid"></div></div></div>
+<div id="dlgCover" class="hide"></div>
+<div id="dlg" class="hide"><canvas id="dlgP" width="192" height="192"></canvas><div id="dlgBox"><div id="dlgN"></div><div id="dlgT"></div><div id="dlgNext">tap ▼</div></div></div>
+<div id="modal" class="hide"><div id="modalIn"></div></div>
+<div id="toast"></div>
+<div id="cap" class="hide"></div>
+<button id="skipIntro" class="hide">Skip intro ▶</button>
+<div id="flash"></div>
+<div id="title"><canvas id="titleShip" width="600" height="600"></canvas><div id="logo">RED PLANET<span>REBUILD</span></div><div id="tapgo">Tap to play</div><div id="ver"></div></div>
+<script src="game.js"></script>
+</body>
+</html>
